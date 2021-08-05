@@ -1,0 +1,121 @@
+[
+    {
+        "question": "Укажите Ваш город",
+        "answer options": "",
+        "poll options": ""
+    },
+    {
+        "question": "Укажите Вашу компанию",
+        "answer options": "",
+        "poll options": ""
+    },
+    {
+        "question": "Укажите Вашу должность",
+        "answer options": "",
+        "poll options": ""
+    },
+    {
+        "question": "Чем занимается компания?",
+        "answer options": "",
+        "poll options": ""
+    },
+    {
+        "question": "Какими услугами дата-центра пользуется ваша компания?",
+        "answer options": "",
+        "poll options":
+        [
+            {
+                "value": "Размещение сервера",
+                "next_question": 5
+            },
+            {
+                "value": "Аренда физического сервера",
+                "next_question": 5
+            },
+            {
+                "value": "VDS/VPS",
+                "next_question": 5
+            },
+            {
+                "value": "Облако",
+                "next_question": 5
+            },
+            {
+                "value": "Не работаю с дата-центрами",
+                "next_question": 11
+            }
+        ]
+    },
+    {
+        "question": "Для каких задач Вы используете серверы?",
+        "answer options": "",
+        "poll options": ""
+    },
+    {
+        "question": "Какими дополнительными услугами дата-центров Вы пользуетесь?",
+        "answer options": "",
+        "poll options":
+        [
+            {
+                "value": "DDoS",
+                "next_question": 8
+            },
+            {
+                "value": "Аренда ПО",
+                "next_question": 8
+            },
+            {
+                "value": "BACKUP",
+                "next_question": 8
+            },
+            {
+                "value": "Аренда каналов",
+                "next_question": 8
+            },
+            {
+                "value": "Другое",
+                "next_question": 7
+            }
+        ]
+    },
+    {
+        "question": "Другое:",
+        "answer options": "",
+        "poll options": ""
+    },
+    {
+        "question": "Какие дополнительные услуги необходимы, но дата-центр их не предоставляет?",
+        "answer options": "",
+        "poll options": ""
+    },
+    {
+        "question": "Какие обстоятельства могут повлиять на решение о смене дата-центра?",
+        "answer options": "",
+        "poll options": ""
+    },
+    {
+        "question": "Укажите 3 дата-центра, которые Вы для себя выделяете:",
+        "answer options": "",
+        "poll options": ""
+    },
+    {
+        "question": "Знаете ли Вы о дата центре ⬛⬛⬛⬛⬛?",
+        "answer options":
+        [
+            {
+                "value": "Да",
+                "next_question": 12
+            },
+            {
+                "value": "Нет",
+                "next_question": 13
+            }
+        ],
+        "poll options": ""
+    },
+    {
+        "question": "Откуда в первый раз о нас услышали?",
+        "answer options": "",
+        "poll options": ""
+    }
+]
