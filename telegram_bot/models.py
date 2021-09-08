@@ -1,16 +1,14 @@
-import requests
 from django.utils.timezone import localtime, now
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 
-class DrawManager(models.Manager):
+class DrawQuerySet(models.QuerySet):
 
     def get_current_draw(self):
         return self.filter(start_at__lte=now(), end_at__gte=now())
 
     def get_future(self):
-        future_draw = Draw.objects.filter(start_at__gte=now())
+        future_draw = self.filter(start_at__gte=now())
         return future_draw.first() if future_draw else None
 
     def get_draw(self):
@@ -31,7 +29,8 @@ class Draw(models.Model):
         verbose_name='Окончания розыгрыша',
         db_index=True,
     )
-    objects = DrawManager()
+
+    objects = DrawQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'Розыгрыш'
@@ -126,20 +125,8 @@ class RebusQuerySet(models.QuerySet):
     def next(self):
         return self.order_by('?').first()
 
-
-class RebusManager(models.Manager):
-
-    def get_queryset(self):
-        return RebusQuerySet(self.model, using=self._db)
-
-    def fresh(self, user):
-        return self.get_queryset().fresh(user)
-
-    def next(self):
-        return self.get_queryset().next()
-
     def add_attempt(self, rebus_id, user, user_answer, success, rebus_sendet_at):
-        new_attempt = RebusAttempt(
+        return RebusAttempt.objects.create(
             rebus=self.get(pk=rebus_id),
             user=user,
             answer=user_answer,
@@ -147,24 +134,6 @@ class RebusManager(models.Manager):
             answer_received_at=now(),
             rebus_sendet_at=rebus_sendet_at,
         )
-        new_attempt.save()
-
-    def get_answers(self, rebus_id):
-        rebus = self.get(pk=rebus_id)
-        answers = rebus.answers.all()
-        return answers if answers else []
-
-    def get_image(self, image):
-        #  Exception: 404 Client Error: Not Found for url: http://127.0.0.1:8000/media/background.jpg
-        try:
-            response_image = requests.get(image.url)
-            response_image.raise_for_status()
-            return image.url
-        except:
-            return None
-
-    def get_amount(self):
-        return self.all().count()
 
 
 class Rebus(models.Model):
@@ -172,7 +141,8 @@ class Rebus(models.Model):
     image = models.ImageField('Изображения')
     published = models.BooleanField('Опубликовать', default=False)
     hint = models.TextField('Подсказка', blank=True)
-    objects = RebusManager()
+    
+    objects = RebusQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'Ребус'
@@ -200,7 +170,7 @@ class Answer(models.Model):
         return f'{self.rebus}'
 
 
-class RebusAttemptManager(models.Manager):
+class RebusAttemptQuerySet(models.QuerySet):
 
     def get_amount_rebus_seccusses_attempts(self, user):
         amount = self.filter(success=True, user=user).count()
@@ -234,7 +204,8 @@ class RebusAttempt(models.Model):
         blank=True,
         null=True,
     )
-    objects = RebusAttemptManager()
+    
+    objects = RebusAttemptQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'Попытка решить ребус'
@@ -244,14 +215,16 @@ class RebusAttempt(models.Model):
         return f'{self.user.full_name}'
 
 
-class PollResultManager(models.Manager):
+class PollResultQuerySet(models.QuerySet):
+    def active_for_user(self, user):
+        return self.filter(user=user, poll_finished=False).first()
 
     def get_current_question_by_user(self, user):
-        user_poll = self.filter(user=user, poll_finished=False).first()
+        user_poll = self.active_for_user(user)
         return user_poll.current_question if user_poll else 0
 
     def get_poll_id(self, user):
-        user_poll = self.filter(poll_finished=False, user=user).first()
+        user_poll = self.active_for_user(user)
         if not user_poll:
             new_poll = PollResult(
                 user=user,
@@ -275,13 +248,13 @@ class PollResultManager(models.Manager):
         question_asnwer_pair.save()
 
     def save_current_question(self, user, current_question):
-        user_poll = self.filter(poll_finished=False, user=user).first()
+        user_poll = self.active_for_user(user)
         if user_poll:
             user_poll.current_question = current_question
             user_poll.save()
 
     def finish_poll(self, user, current_question, poll_finished):
-        user_poll = self.filter(poll_finished=False, user=user).first()
+        user_poll = self.active_for_user(user)
         if user_poll:
             user_poll.current_question = current_question
             user_poll.poll_finished = poll_finished
@@ -289,7 +262,7 @@ class PollResultManager(models.Manager):
             user_poll.save()
 
     def del_unfinished_poll(self, user):
-        user_poll = self.filter(poll_finished=False, user=user).first()
+        user_poll = self.active_for_user(user)
         if user_poll:
             user_poll.delete()
 
@@ -316,7 +289,8 @@ class PollResult(models.Model):
         blank=True,
         null=True,
     )
-    objects = PollResultManager()
+    
+    objects = PollResultQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'Опрос'
