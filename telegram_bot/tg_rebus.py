@@ -277,7 +277,7 @@ def go_next_rebus(bot, chat_id, context):
             Поздравляем. Подойдите на стенд ⬛⬛⬛⬛⬛, покажите данное сообщение и примите
             участие в розыгрыше рюкзака/сумки 🎁''')
         return finish_rebus(bot, chat_id, context, message)
-    elif user_data['successful_attempts'] == Rebus.objects.get_amount():
+    elif user_data['successful_attempts'] == Rebus.objects.count():
         message = textwrap.dedent(f'''
             Отсутствуют доступные ребусы.
             Спасибо за участие в игре 👏
