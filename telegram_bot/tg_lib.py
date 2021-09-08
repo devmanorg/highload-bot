@@ -1,13 +1,18 @@
 import re
 import json
 import textwrap
-import telegram.ext
 from os import path #FIXME Временное решения
-from django.utils.timezone import now
+
+import telegram.ext
+import requests
+
 from telegram import (
     ReplyKeyboardMarkup,
     KeyboardButton
 )
+
+from django.utils.timezone import now
+
 from .models import Draw, Rebus
 
 
@@ -67,15 +72,15 @@ def show_rebus(bot, chat_id, current_rebus, description=''):
         [['❓ Получить подсказку'], ['✖ Закончить игру']],
         one_time_keyboard=False, row_width=1, resize_keyboard=True
     )
-    image = Rebus.objects.get_image(current_rebus.image)
-    if image:
-        # For product server
+    
+    if requests.get(current_rebus.image.url).ok:
+        # for production server
         bot.send_photo(
             chat_id=chat_id, photo=image.url, reply_markup=reply_markup,
             caption=' '.join([item for item in (current_rebus.text, description) if item])
         )
     else:
-        #  For localhost
+        # for localhost
         with open(current_rebus.image.path, 'rb') as image:
             bot.send_photo(
                 chat_id=chat_id, photo=image, reply_markup=reply_markup,
