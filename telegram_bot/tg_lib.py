@@ -15,7 +15,8 @@ TYPE_COMPETITION = {'is_rebus': 'РЕБУС', 'is_poll': 'ОПРОС'}
 
 
 def check_answer(chat_id, answer, context):
-    answers = Rebus.objects.get_answers(context.user_data['current_rebus'].id)
+    rebus = Rebus.objects.get(pk=context.user_data['current_rebus'].id)
+    answers = rebus.answers.all()
     regex_object = re.compile(r'[\n+|\r|\(|\)|\.|\,|\:|\;|\"|\[|\]|\s]')
     answer_seq = [word for word in regex_object.split(answer.upper()) if len(word) > 2]
     correct_answer_seq = [word for word in [item.answer.upper() for item in answers] if len(word) > 2]
